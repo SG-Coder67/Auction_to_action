@@ -54,6 +54,7 @@ router.get('/dashboard', protectTeam, async (req, res) => {
         const team = await Team.findById(req.user.teamId);
         if (!team) return res.status(404).json({ message: 'Team not found' });
         
+        // The dashboard now returns the simplified data
         const dashboardData = {
             message: `Welcome, Team #${team.teamNumber}!`,
             teamNumber: team.teamNumber,

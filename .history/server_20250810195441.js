@@ -3,7 +3,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-const adminRoutes = require('./routes/adminRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 
 const app = express();
@@ -15,8 +14,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Successfully connected to MongoDB Atlas!'))
   .catch((err) => console.error('Database connection error:', err));
 
-// Connect both route files
-app.use('/api/admin', adminRoutes);
+// For any URL that starts with '/api/team', use the teamRoutes.
 app.use('/api/team', teamRoutes);
 
 app.get('/', (req, res) => {
