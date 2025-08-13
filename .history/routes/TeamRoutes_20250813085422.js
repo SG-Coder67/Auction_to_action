@@ -4,13 +4,13 @@ const Team = require('../models/Team');
 
 const router = express.Router();
 
-
+// Endpoint for a Team Leader to log in
 router.post('/login', async (req, res) => {
   try {
-
+    // Expect both fields from the frontend
     const { teamNumber, teamCredential } = req.body;
 
-
+    // Find the team that matches BOTH the number and the credential
     const team = await Team.findOne({ teamNumber, teamCredential });
 
     if (!team) {
