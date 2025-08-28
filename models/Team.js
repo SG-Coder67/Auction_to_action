@@ -6,6 +6,10 @@ const teamSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: false },
   budget: { type: Number, default: 20000 },
   members: [{ type: String }],
+  budget: {
+  type: Number,
+  default: 0,
+}
 });
 
 // This explicitly tells Mongoose to name the collection 'teamData'

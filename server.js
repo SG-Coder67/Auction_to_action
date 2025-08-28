@@ -5,6 +5,7 @@ const cors = require('cors');
 
 const adminRoutes = require('./routes/adminRoutes');
 const teamRoutes = require('./routes/teamRoutes');
+const userDashboardRoutes = require("./routes/userDashboardRoutes");
 
 const app = express();
 
@@ -18,6 +19,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // Connect both route files
 app.use('/api/admin', adminRoutes);
 app.use('/api/team', teamRoutes);
+app.use("/api/user-dashboard", userDashboardRoutes);
 
 app.get('/', (req, res) => {
   res.send('Welcome to the Auction to Action API! The server is running correctly.');
