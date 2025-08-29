@@ -9,9 +9,10 @@ const teamSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Item' 
   }],
+  // V V V --- ADD THIS NEW FIELD --- V V V
   resources: {
     type: Map,
-    of: Number,
+    of: Number, // This will store data like { "Technology": 6, "Utilities": 2 }
     default: {}
   }
 });

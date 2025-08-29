@@ -9,6 +9,7 @@ const transactionSchema = new mongoose.Schema({
   itemId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Item",
+    required: true,
   },
   // 'price' is good, but 'amount' is more generic for trades
   amount: {

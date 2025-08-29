@@ -78,5 +78,5 @@ router.post('/award-bid', protectAdmin, adminController.awardBid);
 // Add this new route inside the "Game Management Routes" section
 
 router.post('/manual-adjust', protectAdmin, adminController.manualAdjustTeam);
-router.get('/transactions', protectAdmin, adminController.getFullTransactionHistory);
+
 module.exports = router;

@@ -1,27 +1,19 @@
 const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({
-  teamId: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Team", // This is the corrected line
+    ref: "User",
     required: true,
   },
   itemId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Item",
-  },
-  // 'price' is good, but 'amount' is more generic for trades
-  amount: {
-    type: Number,
     required: true,
   },
-  type: {
-    type: String,
-    enum: ['Bid', 'Trade', 'ManualAdjustment'],
-    required: true
-  },
-  notes: {
-    type: String
+  price: {
+    type: Number,
+    required: true,
   },
   timestamp: {
     type: Date,
