@@ -14,6 +14,7 @@ const transactionSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  // --- NEW: Field to distinguish between rounds ---
   round: {
     type: Number,
     enum: [1, 2, 3],
@@ -23,10 +24,6 @@ const transactionSchema = new mongoose.Schema({
     type: String,
     enum: ['Bid', 'Trade', 'ManualAdjustment'],
     required: true
-  },
-  // --- NEW: To group the two transactions that make up a single trade ---
-  tradeId: {
-    type: mongoose.Schema.Types.ObjectId,
   },
   notes: {
     type: String

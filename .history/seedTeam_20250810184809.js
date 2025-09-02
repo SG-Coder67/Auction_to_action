@@ -5,7 +5,6 @@ const Team = require('./team.model');
 async function seedTeams() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-
     const teams = [];
     for (let i = 1; i <= 65; i++) {
       teams.push({

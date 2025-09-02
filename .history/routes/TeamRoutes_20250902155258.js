@@ -12,5 +12,5 @@ router.get('/transactions', protectTeam, teamController.getTransactionHistory);
 
 // --- NEW: Route for teams to view all auction items ---
 router.get('/items', protectTeam, teamController.getAvailableItems);
-router.get('/all-bids', protectTeam, teamController.getAllTeamBids);
+
 module.exports = router;
