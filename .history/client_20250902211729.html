@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Auction Live Feed</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #feed {
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: scroll;
+      background-color: #fff;
+      border-radius: 5px;
+    }
+
+    p {
+      margin: 5px 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    .status {
+      font-weight: bold;
+      padding: 5px;
+      border-radius: 5px;
+      color: white;
+      display: inline-block;
+    }
+
+    .connected {
+      background-color: #28a745;
+    }
+
+    .disconnected {
+      background-color: #dc3545;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Auction Live Feed</h1>
+  <div id="status" class="status disconnected">Connecting...</div>
+  <div id="feed"></div>
+
+  <script>
+    // Connect to your main server on port 3001
+    const socket = io("http://localhost:3001");
+
+    socket.on("connect", () => {
+      const statusDiv = document.getElementById("status");
+      statusDiv.textContent = "✅ Connected to server!";
+      statusDiv.className = "status connected";
+    });
+
+    // Listen for the 'new_bid_won' event we created in the controller
+    socket.on("new_bid_won", (data) => {
+      const feed = document.getElementById("feed");
+      const message = document.createElement("p");
+      message.innerHTML = `Team <strong>${data.teamNumber}</strong> won <strong>${data.itemName}</strong> for <strong>${data.price}rs</strong>`;
+      feed.prepend(message); // Add new messages to the top
+    });
+
+    socket.on("disconnect", () => {
+      const statusDiv = document.getElementById("status");
+      statusDiv.textContent = "❌ Disconnected from server";
+      statusDiv.className = "status disconnected";
+    });
+  </script>
+</body>
+
+</html>
