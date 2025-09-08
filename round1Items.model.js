@@ -10,6 +10,7 @@ const itemSchema = new mongoose.Schema({
 const round1ItemsSchema = new mongoose.Schema({
   item_list: [itemSchema],   // Active items
   item_backup: [itemSchema], // Backup copy
+  amount: { type: Number, required: true }, // Bid amount
 });
 
 const Round1Item = mongoose.model("Round1Item", round1ItemsSchema, "round1Items");
