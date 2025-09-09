@@ -13,3 +13,5 @@ Thumbs.db
 
 # Editor-specific files (VS Code)
 .vscode/
+.history/
+
