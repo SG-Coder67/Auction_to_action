@@ -17,7 +17,7 @@ const gameItemSchema = new mongoose.Schema({
     required: true 
   },
   
-  round: { 
+  round: {         // Indicates which round this item belongs to (1 or 2)
     type: Number, 
     enum: [1, 2], 
     required: true 
@@ -27,7 +27,7 @@ const gameItemSchema = new mongoose.Schema({
     type: String 
   },
   
-  basePrice: { 
+  basePrice: {       // Base price or starting bid for the item
     type: Number, 
     required: true 
   },
