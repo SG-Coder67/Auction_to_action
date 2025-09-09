@@ -10,3 +10,6 @@
 # Operating System Files
 .DS_Store
 Thumbs.db
+
+# Editor-specific files (VS Code)
+.vscode/
