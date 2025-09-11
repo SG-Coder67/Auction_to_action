@@ -229,72 +229,10 @@ exports.executeTrade = async (req, res) => {
 
 exports.getBidHistory = async (req, res) => {
     try {
-        const { round } = req.query; // Get round from query parameters
-        
-        console.log('🔍 getBidHistory called with query:', req.query);
-        console.log('🔍 Round parameter:', round, 'Type:', typeof round);
-        
-        // Build filter object
-        let filter = {};
-        if (round) {
-            filter.round = parseInt(round);
-            console.log('🔍 Filter object:', filter);
-        }
-        
-        console.log('🔍 Searching BidHistory with filter:', filter);
-        const history = await BidHistory.find(filter).sort({ createdAt: -1 });
-        console.log('🔍 Found history items:', history.length);
-        
-        // Log each item's round
-        history.forEach((item, index) => {
-            console.log(`Item ${index + 1}: Round ${item.round}, Item: ${item.itemName}`);
-        });
-        
+        const history = await BidHistory.find({}).sort({ createdAt: -1 });
         res.status(200).json(history);
     } catch (error) {
-        console.error('❌ Error in getBidHistory:', error);
         res.status(500).json({ message: 'Error fetching bid history' });
-    }
-};
-
-exports.updateBidHistory = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { itemName, bidAmount, teamName, teamCode } = req.body;
-        
-        const updateData = {};
-        if (itemName) updateData.itemName = itemName;
-        if (bidAmount) updateData.bidAmount = Number(bidAmount);
-        if (teamName) updateData.teamName = teamName;
-        if (teamCode) updateData.teamCode = teamCode;
-        
-        const updatedBid = await BidHistory.findByIdAndUpdate(id, updateData, { new: true });
-        
-        if (!updatedBid) {
-            return res.status(404).json({ message: 'Bid history not found.' });
-        }
-        
-        res.status(200).json({ message: 'Bid history updated successfully.', bid: updatedBid });
-    } catch (error) {
-        console.error('❌ Error updating bid history:', error);
-        res.status(500).json({ message: 'Error updating bid history', error: error.message });
-    }
-};
-
-exports.deleteBidHistory = async (req, res) => {
-    try {
-        const { id } = req.params;
-        
-        const deletedBid = await BidHistory.findByIdAndDelete(id);
-        
-        if (!deletedBid) {
-            return res.status(404).json({ message: 'Bid history not found.' });
-        }
-        
-        res.status(200).json({ message: 'Bid history deleted successfully.' });
-    } catch (error) {
-        console.error('❌ Error deleting bid history:', error);
-        res.status(500).json({ message: 'Error deleting bid history', error: error.message });
     }
 };
 
@@ -306,29 +244,12 @@ exports.getTradeHistory = async (req, res) => {
         res.status(500).json({ message: 'Error fetching trade history' });
     }
 };
-
-exports.updateTradeHistory = async (req, res) => {
+exports.getTeamsStatus = async (req, res) => {
     try {
-        const { id } = req.params;
-        const updatedTrade = await TradeHistory.findByIdAndUpdate(id, req.body, { new: true });
-        if (!updatedTrade) {
-            return res.status(404).json({ message: 'Trade history not found' });
-        }
-        res.status(200).json(updatedTrade);
+        const teams = await Team.find({}, 'teamCode teamName isActive');
+        res.status(200).json(teams);
     } catch (error) {
-        res.status(500).json({ message: 'Error updating trade history' });
-    }
-};
-
-exports.deleteTradeHistory = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deletedTrade = await TradeHistory.findByIdAndDelete(id);
-        if (!deletedTrade) {
-            return res.status(404).json({ message: 'Trade history not found' });
-        }
-        res.status(200).json({ message: 'Trade history deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting trade history' });
+        console.error("ERROR FETCHING TEAM STATUS:", error);
+        res.status(500).json({ message: 'Error fetching team statuses' });
     }
 };
