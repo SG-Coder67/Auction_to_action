@@ -64,9 +64,25 @@ exports.deleteAdmin = async (req, res) => {
 
 exports.getAllTeams = async (req, res) => {
     try {
-        const teams = await Team.find({}).select('-password');
+        const { teamCode } = req.query;
+        
+        let query = {};
+        if (teamCode) {
+            // Exact match for team code (case-insensitive)
+            query.teamCode = { $regex: new RegExp(^${teamCode}$, 'i') };
+        }
+        
+        const teams = await Team.find(query).select('-password');
+        
+        // Debug log
+        console.log(Team lookup for code: ${teamCode}, found ${teams.length} teams);
+        if (teams.length > 0) {
+            console.log('Found teams:', teams.map(t => ({ code: t.teamCode, name: t.teamName })));
+        }
+        
         res.status(200).json(teams);
     } catch (error) {
+        console.error('Error fetching teams:', error);
         res.status(500).json({ message: 'Server error fetching teams.' });
     }
 };
@@ -144,7 +160,7 @@ exports.awardBid = async (req, res) => {
       return res.status(400).json({ message: 'This item has already been won.' });
     }
     if (team.balance < bidAmount) {
-      return res.status(400).json({ message: `Team balance is too low.` });
+      return res.status(400).json({ message: Team balance is too low. });
     }
 
     team.debit += Number(bidAmount);
@@ -187,13 +203,13 @@ exports.executeTrade = async (req, res) => {
 
         const { teamOneGivesItems, teamOneGivesMoney, teamTwoGivesItems, teamTwoGivesMoney } = tradeDetails;
 
-        if (teamA.balance < teamOneGivesMoney) return res.status(400).json({ message: `${teamA.teamName} does not have enough money.` });
+        if (teamA.balance < teamOneGivesMoney) return res.status(400).json({ message: ${teamA.teamName} does not have enough money. });
         for (const item of teamOneGivesItems) {
-            if ((teamA.resources.get(item) || 0) < 1) return res.status(400).json({ message: `${teamA.teamName} does not have ${item}.` });
+            if ((teamA.resources.get(item) || 0) < 1) return res.status(400).json({ message: ${teamA.teamName} does not have ${item}. });
         }
-        if (teamB.balance < teamTwoGivesMoney) return res.status(400).json({ message: `${teamB.teamName} does not have enough money.` });
+        if (teamB.balance < teamTwoGivesMoney) return res.status(400).json({ message: ${teamB.teamName} does not have enough money. });
         for (const item of teamTwoGivesItems) {
-            if ((teamB.resources.get(item) || 0) < 1) return res.status(400).json({ message: `${teamB.teamName} does not have ${item}.` });
+            if ((teamB.resources.get(item) || 0) < 1) return res.status(400).json({ message: ${teamB.teamName} does not have ${item}. });
         }
 
         teamA.debit += teamOneGivesMoney;
@@ -229,10 +245,72 @@ exports.executeTrade = async (req, res) => {
 
 exports.getBidHistory = async (req, res) => {
     try {
-        const history = await BidHistory.find({}).sort({ createdAt: -1 });
+        const { round } = req.query; // Get round from query parameters
+        
+        console.log('🔍 getBidHistory called with query:', req.query);
+        console.log('🔍 Round parameter:', round, 'Type:', typeof round);
+        
+        // Build filter object
+        let filter = {};
+        if (round) {
+            filter.round = parseInt(round);
+            console.log('🔍 Filter object:', filter);
+        }
+        
+        console.log('🔍 Searching BidHistory with filter:', filter);
+        const history = await BidHistory.find(filter).sort({ createdAt: -1 });
+        console.log('🔍 Found history items:', history.length);
+        
+        // Log each item's round
+        history.forEach((item, index) => {
+            console.log(Item ${index + 1}: Round ${item.round}, Item: ${item.itemName});
+        });
+        
         res.status(200).json(history);
     } catch (error) {
+        console.error('❌ Error in getBidHistory:', error);
         res.status(500).json({ message: 'Error fetching bid history' });
+    }
+};
+
+exports.updateBidHistory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { itemName, bidAmount, teamName, teamCode } = req.body;
+        
+        const updateData = {};
+        if (itemName) updateData.itemName = itemName;
+        if (bidAmount) updateData.bidAmount = Number(bidAmount);
+        if (teamName) updateData.teamName = teamName;
+        if (teamCode) updateData.teamCode = teamCode;
+        
+        const updatedBid = await BidHistory.findByIdAndUpdate(id, updateData, { new: true });
+        
+        if (!updatedBid) {
+            return res.status(404).json({ message: 'Bid history not found.' });
+        }
+        
+        res.status(200).json({ message: 'Bid history updated successfully.', bid: updatedBid });
+    } catch (error) {
+        console.error('❌ Error updating bid history:', error);
+        res.status(500).json({ message: 'Error updating bid history', error: error.message });
+    }
+};
+
+exports.deleteBidHistory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const deletedBid = await BidHistory.findByIdAndDelete(id);
+        
+        if (!deletedBid) {
+            return res.status(404).json({ message: 'Bid history not found.' });
+        }
+        
+        res.status(200).json({ message: 'Bid history deleted successfully.' });
+    } catch (error) {
+        console.error('❌ Error deleting bid history:', error);
+        res.status(500).json({ message: 'Error deleting bid history', error: error.message });
     }
 };
 
@@ -244,12 +322,29 @@ exports.getTradeHistory = async (req, res) => {
         res.status(500).json({ message: 'Error fetching trade history' });
     }
 };
-exports.getTeamsStatus = async (req, res) => {
+
+exports.updateTradeHistory = async (req, res) => {
     try {
-        const teams = await Team.find({}, 'teamCode teamName isActive');
-        res.status(200).json(teams);
+        const { id } = req.params;
+        const updatedTrade = await TradeHistory.findByIdAndUpdate(id, req.body, { new: true });
+        if (!updatedTrade) {
+            return res.status(404).json({ message: 'Trade history not found' });
+        }
+        res.status(200).json(updatedTrade);
     } catch (error) {
-        console.error("ERROR FETCHING TEAM STATUS:", error);
-        res.status(500).json({ message: 'Error fetching team statuses' });
+        res.status(500).json({ message: 'Error updating trade history' });
     }
+};
+
+exports.deleteTradeHistory = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedTrade = await TradeHistory.findByIdAndDelete(id);
+        if (!deletedTrade) {
+            return res.status(404).json({ message: 'Trade history not found' });
+        }
+        res.status(200).json({ message: 'Trade history deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting trade history' });
+    }
 };
