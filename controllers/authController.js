@@ -68,11 +68,6 @@ exports.loginTeam = async (req, res) => {
     const team = await Team.findOne({ teamCode });
 
     if (team && (await bcrypt.compare(password, team.password))) {
-
-      // ✅ Mark team as active on login
-      team.isActive = true;
-      await team.save();
-
       const token = jwt.sign(
         { teamId: team._id, teamCode: team.teamCode, role: 'participant' },
         process.env.JWT_SECRET,
@@ -83,28 +78,6 @@ exports.loginTeam = async (req, res) => {
       res.status(401).json({ message: 'Invalid Team Code or Password.' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error during login.' });
-  }
-};
-
-/**
- * Logs out a Team.
- */
-exports.logoutTeam = async (req, res) => {
-  try {
-    const { teamCode } = req.body;
-    const team = await Team.findOne({ teamCode });
-
-    if (!team) {
-      return res.status(404).json({ message: 'Team not found.' });
-    }
-
-    // ✅ Mark team as inactive on logout
-    team.isActive = false;
-    await team.save();
-
-    res.status(200).json({ message: 'Logout successful!' });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error during logout.' });
-  }
+    res.status(500).json({ message: 'Server error during login.' });
+  }
 };
