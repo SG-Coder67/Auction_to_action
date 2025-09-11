@@ -28,6 +28,10 @@ router.post('/execute-trade', protectAdmin, adminController.executeTrade);
 
 // --- History ---
 router.get('/bid-history', protectAdmin, adminController.getBidHistory);
+router.put('/bid-history/:id', protectAdmin, adminController.updateBidHistory);
+router.delete('/bid-history/:id', protectAdmin, adminController.deleteBidHistory);
 router.get('/trade-history', protectAdmin, adminController.getTradeHistory);
+router.put('/trade-history/:id', protectAdmin, adminController.updateTradeHistory);
+router.delete('/trade-history/:id', protectAdmin, adminController.deleteTradeHistory);
 
 module.exports = router;
