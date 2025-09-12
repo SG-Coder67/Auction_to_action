@@ -55,8 +55,6 @@ exports.loginAdmin = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-
 // --- TEAM AUTH ---
 
 /**
@@ -67,7 +65,16 @@ exports.loginTeam = async (req, res) => {
     const { teamCode, password } = req.body;
     const team = await Team.findOne({ teamCode });
 
-    if (team && (await bcrypt.compare(password, team.password))) {
+    if (!team) {
+      return res.status(401).json({ message: 'Invalid Team Code or Password.' });
+    }
+
+    // 🔹 Check if team is active
+    if (team.isActive === false) {
+      return res.status(403).json({ message: 'This team is currently deactivated by the Admin.' });
+    }
+
+    if (await bcrypt.compare(password, team.password)) {
       const token = jwt.sign(
         { teamId: team._id, teamCode: team.teamCode, role: 'participant' },
         process.env.JWT_SECRET,
@@ -78,6 +85,8 @@ exports.loginTeam = async (req, res) => {
       res.status(401).json({ message: 'Invalid Team Code or Password.' });
     }
   } catch (error) {
-    res.status(500).json({ message: 'Server error during login.' });
-  }
+    console.error("❌ Error logging in team:", error);
+    res.status(500).json({ message: 'Server error during login.' });
+  }
 };
+
